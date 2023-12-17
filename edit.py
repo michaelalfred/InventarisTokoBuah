@@ -7,284 +7,213 @@ from pathlib import Path
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
+import tkinter as tk
+from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Toplevel, ttk
+import mysql.connector as db
+import editForm, tambahForm
+
+
 
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\micha\OneDrive\Desktop\build\assets\frame2")
+ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame4")
+
+mydb = None
+try:
+    mydb = db.connect(
+    host="localhost",
+    user="root",
+    password="",
+    database="inventaristokobuah"
+    )
+    print("Database berhasil terhubung")
+except db.Error as err:
+    print("Database gagal terhubung")
+    print(err)
 
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
+def create_table(editWindow, canvas):
+    # Membuat koneksi ke database
+    cursor = mydb.cursor()
+    # Membaca data dari database
+    cursor.execute("SELECT * FROM barang")
 
-window = Tk()
+    # Mendapatkan nama kolom dari hasil query
+    column_names = [desc[0] for desc in cursor.description]
 
-window.geometry("578x363")
-window.configure(bg = "#628469")
+    # Membuat tabel Treeview
+    tree = ttk.Treeview(editWindow, columns=column_names, show='headings', height=16)
+
+    # Lebar dan tinggi create_rectangle
+    rectangle_width = 1192
+    rectangle_height = 352
+
+    # Jumlah kolom dan baris
+    num_columns = len(column_names)
+    num_rows = 14  # Anda bisa mengubah ini tergantung pada jumlah baris data Anda
+
+    # Menghitung lebar dan tinggi setiap kolom dan baris
+    column_width = rectangle_width // num_columns
+    row_height = rectangle_height // num_rows
+
+    # Menambahkan scrollbar vertikal
+    vsb = ttk.Scrollbar(editWindow, orient="vertical", command=tree.yview)
+    vsb.place(x=1230, y=150, height=rectangle_height)
+    tree.configure(yscrollcommand=vsb.set)
+
+    # Menambahkan scrollbar horizontal
+    hsb = ttk.Scrollbar(editWindow, orient="horizontal", command=tree.xview)
+    hsb.place(x=38, y=502, width=rectangle_width)
+    tree.configure(xscrollcommand=hsb.set)
+
+    # Menambahkan kolom ke tabel
+    for col in column_names:
+        tree.heading(col, text=col)
+        tree.column(col, width=column_width)
+
+    # Menambahkan data ke tabel
+    for row in cursor:
+        tree.insert('', 'end', values=row)
+
+    # Menempatkan tabel ke dalam canvas
+    canvas.create_window(634, 326, window=tree)
+
+def launch():
+    editWindow = Toplevel()
+
+    editWindow.geometry("1252x656")
+    editWindow.configure(bg = "#628469")
 
 
-canvas = Canvas(
-    window,
-    bg = "#628469",
-    height = 363,
-    width = 578,
-    bd = 0,
-    highlightthickness = 0,
-    relief = "ridge"
-)
+    canvas = Canvas(
+        editWindow,
+        bg = "#628469",
+        height = 656,
+        width = 1252,
+        bd = 0,
+        highlightthickness = 0,
+        relief = "ridge"
+    )
 
-canvas.place(x = 0, y = 0)
-image_image_1 = PhotoImage(
-    file=relative_to_assets("image_1.png"))
-image_1 = canvas.create_image(
-    289.0,
-    186.52850341796875,
-    image=image_image_1
-)
+    canvas.place(x = 0, y = 0)
+    image_image_1 = PhotoImage(
+        file=relative_to_assets("image_1.png"))
+    image_1 = canvas.create_image(
+        626.0,
+        328.0,
+        image=image_image_1
+    )
 
-canvas.create_text(
-    255.0,
-    12.0,
-    anchor="nw",
-    text="EDIT\n",
-    fill="#FFFFFF",
-    font=("Sansation Regular", 24 * -1)
-)
+    button_image_tambah = PhotoImage(
+        file=relative_to_assets("button_1.png"))
+    button_tambah = Button(
+        editWindow,
+        image=button_image_tambah,
+        borderwidth=0,
+        highlightthickness=0,
+        command=lambda: [print("button_1 clicked"), tambahForm.launch()],
+        relief="flat"
+    )
+    button_tambah.place(
+        x=38.000030517578125,
+        y=540.599853515625,
+        width=171.0,
+        height=39.40020751953125
+    )
 
-button_image_1 = PhotoImage(
-    file=relative_to_assets("button_1.png"))
-button_1 = Button(
-    image=button_image_1,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: print("button_1 clicked"),
-    relief="flat"
-)
-button_1.place(
-    x=9.0,
-    y=12.0,
-    width=52.0,
-    height=40.0
-)
+    button_image_edit = PhotoImage(
+        file=relative_to_assets("button_2.png"))
+    button_edit = Button(
+        editWindow,
+        image=button_image_edit,
+        borderwidth=0,
+        highlightthickness=0,
+        command=lambda: [print("button_2 clicked"), editForm.launch()],
+        relief="flat"
+    )
+    button_edit.place(
+        x=543.0,
+        y=541.0,
+        width=171.0,
+        height=39.0
+    )
 
-entry_image_id = PhotoImage(
-    file=relative_to_assets("entry_1.png"))
-entry_bg_id = canvas.create_image(
-    72.72333145141602,
-    119.1829481124878,
-    image=entry_image_id
-)
-entry_id = Entry(
-    bd=0,
-    bg="#FFFFFF",
-    fg="#000716",
-    highlightthickness=0
-)
-entry_id.place(
-    x=31,
-    y=109.884033203125,
-    width=80.58936309814453,
-    height=18.597829818725586
-)
+    button_image_hapus = PhotoImage(
+        file=relative_to_assets("button_3.png"))
+    button_hapus = Button(
+        editWindow,
+        image=button_image_hapus,
+        borderwidth=0,
+        highlightthickness=0,
+        command=lambda: print("button_3 clicked"),
+        relief="flat"
+    )
+    button_hapus.place(
+        x=1059.0,
+        y=541.0,
+        width=171.0,
+        height=39.0
+    )
 
-entry_image_masuk = PhotoImage(
-    file=relative_to_assets("entry_2.png"))
-entry_bg_2 = canvas.create_image(
-    347.9467582702637,
-    118.78115367889404,
-    image=entry_image_masuk
-)
-entry_masuk = Entry(
-    bd=0,
-    bg="#FFFFFF",
-    fg="#000716",
-    highlightthickness=0
-)
-entry_masuk.place(
-    x=287.669921875,
-    y=110.48223876953125,
-    width=120,
-    height=18.597829818725586
-)
+    button_image_4 = PhotoImage(
+        file=relative_to_assets("button_4.png"))
+    button_4 = Button(
+        editWindow,
+        image=button_image_4,
+        borderwidth=0,
+        highlightthickness=0,
+        command=lambda: [print("button_4 clicked"), editWindow.destroy()],
+        relief="flat"
+    )
+    button_4.place(
+        x=17.0,
+        y=23.0,
+        width=43.0,
+        height=43.0
+    )
 
-entry_image_kadaluarsa = PhotoImage(
-    file=relative_to_assets("entry_3.png"))
-entry_bg_kadaluarsa = canvas.create_image(
-    486.96479415893555,
-    118.78115367889404,
-    image=entry_image_kadaluarsa
-)
-entry_kadaluarsa = Entry(
-    bd=0,
-    bg="#FFFFFF",
-    fg="#000716",
-    highlightthickness=0
-)
-entry_kadaluarsa.place(
-    x=426.6879577636719,
-    y=110.48223876953125,
-    width=120.55367279052734,
-    height=18.597829818725586
-)
+    entry_image_1 = PhotoImage(
+        file=relative_to_assets("entry_1.png"))
+    entry_bg_1 = canvas.create_image(
+        1111.0044021606445,
+        89.9802360534668,
+        image=entry_image_1
+    )
+    entry_1 = Entry(
+        editWindow,
+        bd=0,
+        bg="#FFFFFF",
+        fg="#000716",
+        highlightthickness=0,
+        font=("Inter Bold", 14 * -1)
+    )
+    entry_1.place(
+        x=1000.0,
+        y=75.0,
+        width=220.00880432128906,
+        height=30.960472106933594
+    )
 
-entry_image_nama = PhotoImage(
-    file=relative_to_assets("entry_4.png"))
-entry_bg_nama = canvas.create_image(
-    202.13085174560547,
-    118.78115367889404,
-    image=entry_image_nama
-)
-entry_nama = Entry(
-    bd=0,
-    bg="#FFFFFF",
-    fg="#000716",
-    highlightthickness=0
-)
-entry_nama.place(
-    x=134,
-    y=110.48223876953125,
-    width=136.27928161621094,
-    height=18.597829818725586
-)
+    canvas.create_text(
+        1001.0,
+        49.0,
+        anchor="nw",
+        text="Cari:",
+        fill="#FFFFFF",
+        font=("Inter Bold", 14 * -1)
+    )
 
-entry_image_jual = PhotoImage(
-    file=relative_to_assets("entry_5.png"))
-entry_bg_jual = canvas.create_image(
-    103.07630157470703,
-    193.5,
-    image=entry_image_jual
-)
-entry_jual = Entry(
-    bd=0,
-    bg="#FFFFFF",
-    fg="#000716",
-    highlightthickness=0
-)
-entry_jual.place(
-    x=29.92864990234375,
-    y=185.0,
-    width=145.29530334472656,
-    height=19.0
-)
-
-canvas.create_text(
-    28.92864990234375,
-    87.1876220703125,
-    anchor="nw",
-    text="ID Buah : ",
-    fill="#FFFFFF",
-    font=("Inter Bold", 14 * -1)
-)
-
-canvas.create_text(
-    132.9912109375,
-    90.80364990234375,
-    anchor="nw",
-    text="Nama Buah :",
-    fill="#FFFFFF",
-    font=("Inter Bold", 14 * -1)
-)
-
-canvas.create_text(
-    33.75,
-    161.9197998046875,
-    anchor="nw",
-    text="Harga jual :",
-    fill="#FFFFFF",
-    font=("Inter Bold", 14 * -1)
-)
-
-entry_image_beli = PhotoImage(
-    file=relative_to_assets("entry_6.png"))
-entry_bg_beli = canvas.create_image(
-    276.24610137939453,
-    193.5133924484253,
-    image=entry_image_beli
-)
-entry_beli = Entry(
-    bd=0,
-    bg="#FFFFFF",
-    fg="#000716",
-    highlightthickness=0
-)
-entry_beli.place(
-    x=207.31308889389038,
-    y=185.2144775390625,
-    width=137.8660249710083,
-    height=18.597829818725586
-)
-
-canvas.create_text(
-    207.72332763671875,
-    161.9197998046875,
-    anchor="nw",
-    text="Harga Beli :",
-    fill="#FFFFFF",
-    font=("Inter Bold", 14 * -1)
-)
-
-entry_image_jual = PhotoImage(
-    file=relative_to_assets("entry_7.png"))
-entry_bg_jual = canvas.create_image(
-    449.41568756103516,
-    193.9151258468628,
-    image=entry_image_jual
-)
-entry_jual = Entry(
-    bd=0,
-    bg="#FFFFFF",
-    fg="#000716",
-    highlightthickness=0
-)
-entry_jual.place(
-    x=380.482675075531,
-    y=184.6162109375,
-    width=137.8660249710083,
-    height=18.597829818725586
-)
-
-canvas.create_text(
-    380.8931579589844,
-    162.321533203125,
-    anchor="nw",
-    text="Jumlah(kg) :",
-    fill="#FFFFFF",
-    font=("Inter Bold", 14 * -1)
-)
-
-canvas.create_text(
-    285.669921875,
-    87.1876220703125,
-    anchor="nw",
-    text="Tggl masuk :",
-    fill="#FFFFFF",
-    font=("Inter Bold", 14 * -1)
-)
-
-canvas.create_text(
-    424.6879577636719,
-    85.5804443359375,
-    anchor="nw",
-    text="Tggl Kadaluarsa :",
-    fill="#FFFFFF",
-    font=("Inter Bold", 14 * -1)
-)
-
-button_image_2 = PhotoImage(
-    file=relative_to_assets("button_2.png"))
-button_2 = Button(
-    image=button_image_2,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: print("button_2 clicked"),
-    relief="flat"
-)
-button_2.place(
-    x=208.0,
-    y=303.0,
-    width=142.0,
-    height=46.0
-)
-window.resizable(False, False)
-window.mainloop()
+    canvas.create_rectangle(
+        38.0,
+        150.0,
+        1230.0,
+        502.0,
+        fill="#D9D9D9",
+        outline="")
+    
+    create_table(editWindow, canvas)
+    editWindow.resizable(False, False)
+    editWindow.mainloop()

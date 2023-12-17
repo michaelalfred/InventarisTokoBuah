@@ -49,17 +49,17 @@ def login():
         )
     else:
         print("Login berhasil")
-        window.destroy()
+        mainWindow.destroy()
         import menu
 
-window = Tk()
+mainWindow = Tk()
 
-window.geometry("763x464")
-window.configure(bg = "#628469")
+mainWindow.geometry("763x464")
+mainWindow.configure(bg = "#628469")
 
 
 canvas = Canvas(
-    window,
+    mainWindow,
     bg = "#628469",
     height = 464,
     width = 763,
@@ -172,6 +172,7 @@ canvas.create_text(
     font=("Inter Bold", 12 * -1)
 )
 
-window.title("Login")
-window.resizable(False, False)
-window.mainloop()
+mainWindow.bind("<Return>", lambda event: login())
+mainWindow.title("Login")
+mainWindow.resizable(False, False)
+mainWindow.mainloop()

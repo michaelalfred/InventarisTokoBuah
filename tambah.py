@@ -149,7 +149,7 @@ entry_nama.place(
 )
 
 entry_image_jual = PhotoImage(
-    file=relative_to_assets("entry_5.png"))
+    file=relative_to_assets("entry_4.png"))
 entry_bg_jual = canvas.create_image(
     103.07630157470703,
     193.5,
