@@ -17,7 +17,6 @@ ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\micha\OneDrive\Desktop\build\assets\
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
-
 def editBarang():
     import edit
 
