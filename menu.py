@@ -7,18 +7,20 @@ from pathlib import Path
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import Tk, Canvas, Button, PhotoImage
 import mysql.connector as db
+import edit
 
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\micha\OneDrive\Desktop\build\assets\frame0")
+ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame0")
 
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
 def editBarang():
+    menuWindow.destroy()
     import edit
 
 mydb = db.connect(
@@ -27,14 +29,14 @@ mydb = db.connect(
   password=""
 )
 
-window = Tk()
+menuWindow = Tk()
 
-window.geometry("734x464")
-window.configure(bg = "#628469")
+menuWindow.geometry("734x464")
+menuWindow.configure(bg = "#628469")
 
 
 canvas = Canvas(
-    window,
+    menuWindow,
     bg = "#628469",
     height = 464,
     width = 734,
@@ -55,10 +57,11 @@ image_1 = canvas.create_image(
 button_image_1 = PhotoImage(
     file=relative_to_assets("button_1.png"))
 button_1 = Button(
+    menuWindow,
     image=button_image_1,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_1 clicked"),
+    command=lambda: [print("button_1 clicked")],
     relief="flat"
 )
 button_1.place(
@@ -71,10 +74,11 @@ button_1.place(
 button_image_2 = PhotoImage(
     file=relative_to_assets("button_2.png"))
 button_2 = Button(
+    menuWindow,
     image=button_image_2,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: [print("button_2 clicked"), editBarang()],
+    command=lambda: [print("button_2 clicked"), edit.launch()],
     relief="flat"
 )
 button_2.place(
@@ -96,6 +100,7 @@ canvas.create_text(
 button_image_3 = PhotoImage(
     file=relative_to_assets("button_3.png"))
 button_3 = Button(
+    menuWindow,
     image=button_image_3,
     borderwidth=0,
     highlightthickness=0,
@@ -112,6 +117,7 @@ button_3.place(
 button_image_4 = PhotoImage(
     file=relative_to_assets("button_4.png"))
 button_4 = Button(
+    menuWindow,
     image=button_image_4,
     borderwidth=0,
     highlightthickness=0,
@@ -125,6 +131,6 @@ button_4.place(
     height=141.0
 )
 
-window.title("Menu Utama")
-window.resizable(False, False)
-window.mainloop()
+menuWindow.title("Menu Utama")
+menuWindow.resizable(False, False)
+menuWindow.mainloop()
