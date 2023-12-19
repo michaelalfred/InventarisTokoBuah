@@ -18,7 +18,6 @@ ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame0")
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
-
 def editBarang():
     menuWindow.destroy()
     import edit
